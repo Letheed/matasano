@@ -1,0 +1,5 @@
+# Rust
+target/
+
+# Haskell
+.stack-work/
