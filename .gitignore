@@ -3,3 +3,6 @@ target/
 
 # Haskell
 .stack-work/
+
+# Tags
+TAGS
