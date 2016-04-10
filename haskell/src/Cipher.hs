@@ -1,9 +1,13 @@
 {- | Cipher commons. -}
 
 module Cipher
-       ( Key, KeySchedule
+       ( -- * Key related types
+         Key, KeySchedule
+         -- * Cipher classes
        , Cipher(..), BlockCipher(..), ProductCipher(..)
+         -- * Modes of operation
        , ecbCipher, ecbDecipher
+         -- *** Mode detection
        , ecbProbe
        ) where
 
@@ -44,20 +48,31 @@ class (Cipher cipher) => ProductCipher cipher where
   -- | Get the key schedule used for ciphering
   cipherKeySchedule :: cipher -> ByteString
 
--- | Cipher a plaintext `ByteString` using a `BlockCipher`.
+-- | Cipher a plaintext using the ECB mode with the provided cipher.
+--
 -- Undefined behavior if the plaintext's length is not a multiple of the cipher's blocksize.
 ecbCipher :: (BlockCipher cipher) => cipher -> ByteString -> ByteString
 ecbCipher cipher = concatMap (cipherBlock cipher) . chunksOf n
   where n = blockSize cipher
 
--- | Decipher a ciphertext `ByteString` using a `BlockCipher`.
+-- | Decipher a ciphertext using the ECB mode with the provided cipher.
+--
 -- Undefined behavior if the ciphertext's length is not a multiple of the cipher's blocksize.
 ecbDecipher :: (BlockCipher cipher) => cipher -> ByteString -> ByteString
 ecbDecipher cipher = concatMap (decipherBlock cipher) . chunksOf n
   where n = blockSize cipher
 
+
+-- | Cipher a plaintext using the CBC mode with the provided cipher
+-- and initialisation vector.
+--
+-- Undefined behavior if the plaintext's length is not a multiple of the cipher's blocksize.
+cbcCipher :: (BlockCipher cipher) => cipher -> ByteString -> ByteString
+cbcCipher cipher = concatMap (cipherBlock cipher) . chunksOf n
+  where n = blockSize cipher
+
 -- | Grade the likelyhood of a ciphertext to be the result of a block ciphering
--- using the ecb mode of operation, with the given blocksize.
+-- using the ECB mode, with the given blocksize.
 ecbProbe :: Int -> ByteString -> Int
 ecbProbe n = sum . map countDuplicates . tails . chunksOf n
   where countDuplicates lst = case lst of

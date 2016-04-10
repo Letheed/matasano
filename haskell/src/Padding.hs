@@ -3,7 +3,9 @@
 {- | Padding methods and functions. -}
 
 module Padding
-       ( Padding(..)
+       ( -- * Padding methods
+         Padding(..)
+         -- * Padding functions
        , pad, depad
        ) where
 

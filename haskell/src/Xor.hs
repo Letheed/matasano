@@ -1,4 +1,4 @@
-{- | Xor and xor decryption operations.
+{- | XOR and XOR-decryption operations.
 
 NOTE: This module was written with ASCII characters and strings in mind.
       The ASCII assumption allows for quick resolutions when decrypting.
@@ -6,7 +6,9 @@ NOTE: This module was written with ASCII characters and strings in mind.
 -}
 
 module Xor
-       ( xorEqLen, xorCycle
+       ( -- * XOR operations
+         xorEqLen, xorCycle
+         -- * XOR decryption
        , xorDecrypt, xorDecryptWithKeys
        ) where
 

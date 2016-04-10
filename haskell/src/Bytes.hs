@@ -6,8 +6,12 @@ NOTE: This module was written with ASCII characters and strings in mind.
 -}
 
 module Bytes
-       ( Byte, ByteString
+       ( -- * Byte related types
+         Byte, ByteString
+         -- * Byte conversion functions
+         -- *** String
        , fromString, toString
+         -- *** Hexadecimal
        , parseHex, toHex
        ) where
 

@@ -1,7 +1,8 @@
 {- | Hamming distance computations and operators. -}
 
 module Hamming
-       ( (^+), (.^+.)
+       ( -- * Hamming operators
+         (^+), (.^+.)
        ) where
 
 import LibCommon

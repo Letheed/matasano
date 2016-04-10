@@ -3,7 +3,10 @@
 {- | Base64 encoding and decoding operations. -}
 
 module Base64
-       ( B64String
+       ( -- * Base64 related types
+         B64String
+         -- * Base64 conversion functions
+         -- *** Bytes
        , fromBytes, toBytes
        ) where
 
