@@ -1,7 +1,7 @@
 name:                matasano
 version:             0.1.0.0
 synopsis:            The Matasano crypto challenges
-description:         Library dedicated to the resolution of the Matasano cryptography challenges, written for my personnal education.
+description:         Library dedicated to the resolution of the Matasano cryptography challenges, written for my personnal education. Do not use it for actual cryptographical purposes.
 homepage:            http://github.com/Letheed/matasano
 license:             BSD3
 license-file:        LICENSE
@@ -16,6 +16,7 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:      src
   exposed-modules:     LibCommon
+                       AES
                        Base64
                        Bytes
                        Cipher

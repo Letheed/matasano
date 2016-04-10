@@ -6,16 +6,13 @@ module Set01
 
 import AppCommon
 import LibCommon
+import AES
 import Base64
 import Bytes
 import Cipher
 import Padding
 import Xor
 
-import Crypto.Cipher.AES
-import Crypto.Cipher.Types
-import Crypto.Error
-import Data.ByteString (pack, unpack)
 import Data.List
 import Data.Maybe
 import Data.Ord
@@ -80,16 +77,16 @@ challenge6 = do
 
 challenge7 :: IO ()
 challenge7 = do
-  key       <- pack . Bytes.fromString <$> readFile' 1 7 "key"
-  cipher    <- pack . Base64.toBytes . concat . lines <$> readFile' 1 7 "cipher_base64"
+  key       <- Bytes.fromString <$> readFile' 1 7 "key"
+  cipher    <- Base64.toBytes . concat . lines <$> readFile' 1 7 "cipher_base64"
   plaintext <- readFile' 1 7 "plaintext"
-  aes128    <- throwCryptoErrorIO (cipherInit key)  :: IO AES128
-  let solution = Bytes.toString . depad (PKCS7 (blockSize aes128)) . unpack . ecbDecrypt aes128 $ cipher
+  let aes128   = fromJust $ cipherInit key :: AES128
+  let solution = Bytes.toString . depad (PKCS7 (blockSize aes128)) . ecbDecipher aes128 $ cipher
   testPrint 1 7 $ solution == plaintext
 
 challenge8 :: IO ()
 challenge8 = do
   ciphers    <- map parseHex . lines <$> readFile' 1 8 "ciphers"
   ecb_cipher <- parseHex <$> readFile' 1 8 "ecb_ciphertext"
-  let solution = snd . maximumBy (comparing fst) . map (\ctxt -> (ecbGrade 16 ctxt, ctxt)) $ ciphers
+  let solution = snd . maximumBy (comparing fst) . map (\ctxt -> (ecbProbe 16 ctxt, ctxt)) $ ciphers
   testPrint 1 8 $ ecb_cipher == solution
