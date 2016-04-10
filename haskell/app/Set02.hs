@@ -5,13 +5,18 @@ module Set02
        ) where
 
 import AppCommon
+import AES
+import Base64
 import Bytes
+import Cipher
 import Padding
+
+import Data.Maybe
 
 execAll :: IO ()
 execAll = do
   challenge1
-  -- challenge2
+  challenge2
   -- challenge3
   -- challenge4
   -- challenge5
@@ -28,8 +33,13 @@ challenge1 = do
 
 challenge2 :: IO ()
 challenge2 = do
-  putStr ""
-  testPrint 2 2 False
+  key       <- Bytes.fromString <$> readFile' 2 2 "key"
+  cipher    <- Base64.toBytes . concat . lines <$> readFile' 2 2 "cipher_base64"
+  plaintext <- readFile' 2 2 "plaintext"
+  let aes128   = fromJust $ cipherInit key :: AES128
+  let iv       = ivNull :: IV AES128
+  let solution = Bytes.toString . depad (PKCS7 (blockSize aes128)) . cbcDecipher aes128 iv $ cipher
+  testPrint 2 2 $ solution == plaintext
 
 challenge3 :: IO ()
 challenge3 = do
