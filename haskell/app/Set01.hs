@@ -8,6 +8,7 @@ import AppCommon
 import LibCommon
 import Base64
 import Bytes
+import Cipher
 import Padding
 import Xor
 
@@ -28,7 +29,7 @@ execAll = do
   challenge5
   challenge6
   challenge7
-  -- challenge8
+  challenge8
 
 challenge1 :: IO ()
 challenge1 = do
@@ -88,5 +89,7 @@ challenge7 = do
 
 challenge8 :: IO ()
 challenge8 = do
-  putStrLn ""
-  testPrint 1 8 False
+  ciphers    <- map parseHex . lines <$> readFile' 1 8 "ciphers"
+  ecb_cipher <- parseHex <$> readFile' 1 8 "ecb_ciphertext"
+  let solution = snd . maximumBy (comparing fst) . map (\ctxt -> (ecbGrade 16 ctxt, ctxt)) $ ciphers
+  testPrint 1 8 $ ecb_cipher == solution

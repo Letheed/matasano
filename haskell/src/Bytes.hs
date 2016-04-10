@@ -8,7 +8,7 @@ NOTE: This module was written with ASCII characters and strings in mind.
 module Bytes
        ( Byte, ByteString
        , fromString, toString
-       , parseHex
+       , parseHex, toHex
        ) where
 
 import LibCommon
@@ -47,3 +47,10 @@ parseHexPair :: (Char, Char) -> Byte
 parseHexPair (d1, d0) = tens * 16 + ones
   where tens = fromIntegral $ digitToInt d1
         ones = fromIntegral $ digitToInt d0
+
+-- | Convert a `ByteString` into a printable hexadecimal `String`
+toHex :: ByteString -> String
+toHex []     = []
+toHex (b:bs) = toHexDigit d1 : toHexDigit d0 : toHex bs
+  where (d1, d0) = b `quotRem` 16
+        toHexDigit = intToDigit . fromIntegral

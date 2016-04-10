@@ -18,6 +18,7 @@ library
   exposed-modules:     LibCommon
                        Base64
                        Bytes
+                       Cipher
                        Hamming
                        Padding
                        Xor
