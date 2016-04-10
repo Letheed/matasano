@@ -33,6 +33,7 @@ executable matasano-exe
   main-is:             Main.hs
   other-modules:       AppCommon
                        Set01
+                       Set02
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
                      , bytestring >= 0.10
