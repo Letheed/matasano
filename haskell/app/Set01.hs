@@ -8,8 +8,13 @@ import AppCommon
 import LibCommon
 import Base64
 import Bytes
+import Padding
 import Xor
 
+import Crypto.Cipher.AES
+import Crypto.Cipher.Types
+import Crypto.Error
+import Data.ByteString (pack, unpack)
 import Data.List
 import Data.Maybe
 import Data.Ord
@@ -22,7 +27,7 @@ execAll = do
   challenge4
   challenge5
   challenge6
-  -- challenge7
+  challenge7
   -- challenge8
 
 challenge1 :: IO ()
@@ -74,8 +79,12 @@ challenge6 = do
 
 challenge7 :: IO ()
 challenge7 = do
-  putStrLn ""
-  testPrint 1 7 False
+  key       <- pack . Bytes.fromString <$> readFile' 1 7 "key"
+  cipher    <- pack . Base64.toBytes . concat . lines <$> readFile' 1 7 "cipher_base64"
+  plaintext <- readFile' 1 7 "plaintext"
+  aes128    <- throwCryptoErrorIO (cipherInit key)  :: IO AES128
+  let solution = Bytes.toString . depad (PKCS7 (blockSize aes128)) . unpack . ecbDecrypt aes128 $ cipher
+  testPrint 1 7 $ solution == plaintext
 
 challenge8 :: IO ()
 challenge8 = do

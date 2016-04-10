@@ -19,6 +19,7 @@ library
                        Base64
                        Bytes
                        Hamming
+                       Padding
                        Xor
   build-depends:       base >= 4.7 && < 5
                      , array >= 0.5
@@ -33,6 +34,8 @@ executable matasano-exe
                        Set01
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
+                     , bytestring >= 0.10
+                     , cryptonite >= 0.10
                      , matasano
   default-language:    Haskell2010
 
