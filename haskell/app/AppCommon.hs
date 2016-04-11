@@ -30,7 +30,7 @@ toRed :: String -> String
 toRed s = redStr ++ s ++ resetStr
 
 challengeString :: Int -> Int -> String
-challengeString n m = "set " ++ show n ++ ", challenge " ++ show m
+challengeString n m = "set " ++ show n ++ ", challenge " ++ show2d m
 
 testPrint :: Int -> Int -> Bool -> IO ()
 testPrint n m cond = putStrLn $ challengeString n m ++ ":  " ++ statusString

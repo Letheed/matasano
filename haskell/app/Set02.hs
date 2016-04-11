@@ -1,7 +1,7 @@
 module Set02
        ( execAll
-       , challenge1, challenge2, challenge3, challenge4
-       , challenge5, challenge6, challenge7, challenge8
+       , challenge9, challenge10, challenge11, challenge12
+       , challenge13, challenge14, challenge15, challenge16
        ) where
 
 import AppCommon
@@ -17,60 +17,67 @@ import System.Random
 
 execAll :: IO ()
 execAll = do
-  challenge1
-  challenge2
-  challenge3
-  -- challenge4
-  -- challenge5
-  -- challenge6
-  -- challenge7
-  -- challenge8
+  challenge9
+  challenge10
+  challenge11
+  challenge12
+  -- challenge13
+  -- challenge14
+  -- challenge15
+  -- challenge16
 
-challenge1 :: IO ()
-challenge1 = do
-  plaintext  <- Bytes.fromString <$> readFile' 2 1 "plaintext"
-  paddedtext <- Bytes.fromString <$> readFile' 2 1 "plaintext_padded"
+challenge9 :: IO ()
+challenge9 = do
+  plaintext  <- Bytes.fromString <$> readFile' 2 9 "plaintext"
+  paddedtext <- Bytes.fromString <$> readFile' 2 9 "plaintext_padded"
   let solution = pad (PKCS7 20) plaintext
-  testPrint 2 1 $ solution == paddedtext
+  testPrint 2 9 $ solution == paddedtext
 
-challenge2 :: IO ()
-challenge2 = do
-  key       <- Bytes.fromString <$> readFile' 2 2 "key"
-  cipher    <- Base64.toBytes . concat . lines <$> readFile' 2 2 "cipher_base64"
-  plaintext <- readFile' 2 2 "plaintext"
+challenge10 :: IO ()
+challenge10 = do
+  key       <- Bytes.fromString <$> readFile' 2 10 "key"
+  cipher    <- Base64.toBytes . concat . lines <$> readFile' 2 10 "cipher_base64"
+  plaintext <- readFile' 2 10 "plaintext"
   let aes128   = fromJust $ cipherInit key :: AES128
   let iv       = ivNull :: IV AES128
   let solution = Bytes.toString . depad (PKCS7 (blockSize aes128)) . cbcDecipher aes128 iv $ cipher
-  testPrint 2 2 $ solution == plaintext
+  testPrint 2 10 $ solution == plaintext
 
-challenge3 :: IO ()
-challenge3 = do
+challenge11 :: IO ()
+challenge11 = do
   gen <- newStdGen
+  -- 64 bytes (4 blocks) garanty us at least 2 identical blocks, given that the
+  -- outermost blocks each contain 5 to 10 random bytes.
   let (ciphertext, rdMode) = randomCipher gen (replicate 64 0x00)
   let detectedMode = if ecbProbe 16 ciphertext /= 0 then ECB else CBC
-  testPrint 2 3 $ rdMode == detectedMode
+  testPrint 2 11 $ rdMode == detectedMode
 
-challenge4 :: IO ()
-challenge4 = do
-  putStr ""
-  testPrint 2 4 False
+challenge12 :: IO ()
+challenge12 = do
+  gen    <- newStdGen
+  suffix <- Base64.toBytes . concat . lines <$> readFile' 2 12 "suffix_base64"
+  let rdKey     = take 16 . randoms $ gen :: ByteString
+  let aes128    = fromJust $ cipherInit rdKey :: AES128
+  let cipher    = ecbCipher aes128 . pad (PKCS7 (blockSize aes128)) . (++ suffix)
+  let blockSize = ecbBlockSize cipher
+  testPrint 2 12 False
 
-challenge5 :: IO ()
-challenge5 = do
+challenge13 :: IO ()
+challenge13 = do
   putStr ""
-  testPrint 2 5 False
+  testPrint 2 13 False
 
-challenge6 :: IO ()
-challenge6 = do
+challenge14 :: IO ()
+challenge14 = do
   putStr ""
-  testPrint 2 6 False
+  testPrint 2 14 False
 
-challenge7 :: IO ()
-challenge7 = do
+challenge15 :: IO ()
+challenge15 = do
   putStr ""
-  testPrint 2 7 False
+  testPrint 2 15 False
 
-challenge8 :: IO ()
-challenge8 = do
+challenge16 :: IO ()
+challenge16 = do
   putStr ""
-  testPrint 2 8 False
+  testPrint 2 16 False

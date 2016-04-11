@@ -27,6 +27,7 @@ execAll = do
   challenge6
   challenge7
   challenge8
+  putStrLn ""
 
 challenge1 :: IO ()
 challenge1 = do
