@@ -8,6 +8,7 @@ module Cipher
          -- * Initialisation vector
        , IV, ivInit, ivNull
          -- * Modes of operation
+       , OperationMode(..)
        , ecbCipher, ecbDecipher
        , cbcCipher, cbcDecipher
          -- *** Mode detection
@@ -72,6 +73,11 @@ ivNull = go undefined
   where go :: (BlockCipher cipher) => cipher -> IV cipher
         go cipher = IV (replicate n 0x00)
           where n = blockSize cipher
+
+-- | Operation mode used for ciphering.
+data OperationMode = ECB -- ^ Electronic Codebook mode.
+                   | CBC -- ^ Cipher Block Chaining mode.
+                   deriving (Eq)
 
 -- | Cipher a plaintext using the ECB mode with the provided cipher.
 --

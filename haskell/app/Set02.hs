@@ -10,14 +10,16 @@ import Base64
 import Bytes
 import Cipher
 import Padding
+import Random
 
 import Data.Maybe
+import System.Random
 
 execAll :: IO ()
 execAll = do
   challenge1
   challenge2
-  -- challenge3
+  challenge3
   -- challenge4
   -- challenge5
   -- challenge6
@@ -43,8 +45,10 @@ challenge2 = do
 
 challenge3 :: IO ()
 challenge3 = do
-  putStr ""
-  testPrint 2 3 False
+  gen <- newStdGen
+  let (ciphertext, rdMode) = randomCipher gen (replicate 64 0x00)
+  let detectedMode = if ecbProbe 16 ciphertext /= 0 then ECB else CBC
+  testPrint 2 3 $ rdMode == detectedMode
 
 challenge4 :: IO ()
 challenge4 = do
