@@ -1,8 +1,10 @@
-{- | Advanced Encryption Standard ciphers.
-
-This AES implementation is only meant to be an implementation excercise.
-Do not use it for actual cryptographical purposes.
--}
+--------------------------------------------------------------------------------
+-- | Advanced Encryption Standard ciphers.
+--
+-- This AES implementation is only meant to be an implementation excercise.
+-- Do not use it for actual cryptographical purposes.
+--
+--------------------------------------------------------------------------------
 
 module AES
   ( -- * AES class
@@ -94,7 +96,7 @@ instance ProductCipher AES256 where
   cipherKeySchedule (AES256 keySchedule) = keySchedule
 
 
--- | Multiplication in GF(2⁸).
+-- | `Byte` multiplication in GF(2⁸).
 gmul :: Byte -> Byte -> Byte
 gmul = go (8::Int) 0
   where go n p a b
@@ -104,7 +106,7 @@ gmul = go (8::Int) 0
                 a' = let a'' = a `shiftL` 1 in (if a .&. 0x80 /= 0 then a'' `xor` 0x1b else a'')
                 b' = b `shiftR` 1
 
--- | Yield the exponentiation of 2 to some 8-bit value in GF(2⁸).
+-- | Yields the exponentiation of 2 to some 8-bit value in GF(2⁸).
 rcon :: Word8 -> Byte
 rcon = (rconVec UA.!)
 
@@ -113,11 +115,11 @@ rconVec :: UA.Array Word8 Byte
 rconVec = UA.listArray (0, 255) . take 256 . iterate nextRcon $ 0x8d
   where nextRcon r = (r `shiftL` 1) `xor` (0x1b .&. negate (r `shiftR` 7))
 
--- | Apply the Rijndael S-Box to a byte.
+-- | Applies the Rijndael S-Box to a `Byte`.
 substitute :: Byte -> Byte
 substitute = (sBoxVec UA.!)
 
--- | Apply the inverse Rijndael S-Box to a byte.
+-- | Applies the inverse Rijndael S-Box to a `Byte`.
 invSubstitute :: Byte -> Byte
 invSubstitute = (invSBoxVec UA.!)
 
@@ -149,9 +151,9 @@ sBoxList = [
   0xE1, 0xF8, 0x98, 0x11, 0x69, 0xD9, 0x8E, 0x94, 0x9B, 0x1E, 0x87, 0xE9, 0xCE, 0x55, 0x28, 0xDF,
   0x8C, 0xA1, 0x89, 0x0D, 0xBF, 0xE6, 0x42, 0x68, 0x41, 0x99, 0x2D, 0x0F, 0xB0, 0x54, 0xBB, 0x16]
 
--- | Generate the requested bytelength of subkeys needed for AES block ciphering.
+-- | Generates the requested bytelength of subkeys needed for `AES` block ciphering.
 --
--- Produce an error if the key is not one of the standard keylengths (128, 192 or 256 bits).
+-- Produces an error if the `Key` is not one of the standard keylengths (128, 192 or 256 bits).
 scheduleKeys :: Int -> Key -> KeySchedule
 scheduleKeys b key = take b expandedKey
   where n = length key
@@ -168,9 +170,9 @@ scheduleKeys b key = take b expandedKey
                 (ps0, ps1) = splitAt 16 prev
 
 -- | Key schedule core operation.
--- Takes the iteration number for the rcon operation and a list of four bytes.
+-- Takes the iteration number for the rcon operation and a list of four `Byte`s.
 --
--- Produce an error if the list length is not four.
+-- Produces an error if the list length is not four.
 scheduleCore :: Word8 -> ByteString -> ByteString
 scheduleCore i [b0, b1, b2, b3] = b `xor` rcon i : rest
   where (b:rest) = map substitute [b1, b2, b3, b0]
@@ -221,24 +223,24 @@ invMixColumns = concatMap invMixColumn . chunksOf 4
                          ,[13, 9, 14, 11]
                          ,[11, 13, 9, 14]]
 
--- | Cipher a plaintext block using an AES cipher.
+-- | Ciphers a plaintext block using an `AES` cipher.
 --
--- Produce an error if the plaintext's size doesn't match the cipher's blocksize.
+-- Produces an error if the plaintext's size doesn't match the cipher's blocksize.
 aesCipher :: (AES cipher) => cipher -> ByteString -> ByteString
 aesCipher = aesCore "aesCipher" foldl' fRound fRound'
   where fRound  subkey = addRoundKey subkey . mixColumns . shiftRows . subBytes
         fRound' subkey = addRoundKey subkey . shiftRows . subBytes
 
--- | Decipher a ciphertext block using an AES cipher.
+-- | Deciphers a ciphertext block using an AES cipher.
 --
--- Produce an error if the ciphertext's size doesn't match the cipher's blocksize.
+-- Produces an error if the ciphertext's size doesn't match the cipher's blocksize.
 aesDecipher :: (AES cipher) => cipher -> ByteString -> ByteString
 aesDecipher = aesCore "aesDecipher" foldr' fRound fRound'
   where  fRound  subkey = invSubBytes . invShiftRows . invMixColumns . addRoundKey subkey
          fRound' subkey = invSubBytes . invShiftRows . addRoundKey subkey
          foldr' f = foldr (flip f)
 
--- | Core routine for the AES ciphering/deciphering process.
+-- | Core routine for the `AES` ciphering/deciphering process.
 aesCore name fold fRound fRound' cipher block
   | length block == 16 = fold doRound block (zip roundFunctions subkeys)
   | otherwise          = error $ name ++ ": block size is not 128 bits"

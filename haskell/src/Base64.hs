@@ -1,6 +1,9 @@
 {-# LANGUAGE MultiWayIf #-}
 
-{- | Base64 encoding and decoding operations. -}
+--------------------------------------------------------------------------------
+-- | Base64 encoding and decoding operations.
+--
+--------------------------------------------------------------------------------
 
 module Base64
   ( -- * Base64 related types
@@ -27,14 +30,14 @@ padCharB64 = '='
 tableCharB64 :: Vector Char
 tableCharB64 = fromList $ ['A'..'Z'] ++ ['a'..'z'] ++ ['0'..'9'] ++ ['+', '/']
 
--- | Create a base64 string representing a `ByteString`.
+-- | Creates a base64 string representing a `ByteString`.
 fromBytes :: ByteString -> B64String
 fromBytes (b0:b1:b2:rest) = from3B b0 b1 b2 ++ fromBytes rest
 fromBytes [b0, b1]        = from2B b0 b1
 fromBytes [b0]            = from1B b0
 fromBytes []              = []
 
--- | Map three bytes to base64 characters.
+-- | Maps three bytes to base64 characters.
 from3B :: Byte -> Byte -> Byte -> B64String
 from3B b0 b1 b2 = [c0, c1, c2, c3]
   where c0 = fromByte $ shift b0 (-2)
@@ -42,26 +45,26 @@ from3B b0 b1 b2 = [c0, c1, c2, c3]
         c2 = fromByte $ shift (b1 .&. 0xf) 2 .|. shift b2 (-6)
         c3 = fromByte $ b2 .&. 0x3f
 
--- | Map two bytes to base64 characters.
+-- | Maps two bytes to base64 characters.
 from2B :: Byte -> Byte -> B64String
 from2B b0 b1 = [c0, c1, c2, padCharB64]
   where c0 = fromByte $ shift b0 (-2)
         c1 = fromByte $ shift (b0 .&. 0x3) 4 .|. shift b1 (-4)
         c2 = fromByte $ shift (b1 .&. 0xf) 2
 
--- | Map one byte to base64 characters.
+-- | Maps one byte to base64 characters.
 from1B :: Byte -> B64String
 from1B b0 = [c0, c1, padCharB64, padCharB64]
   where c0 = fromByte $ shift b0 (-2)
         c1 = fromByte $ shift (b0 .&. 0x3) 4
 
--- | Map a 6-bit word to a base64 character.
+-- | Maps a 6-bit word to a base64 character.
 fromByte :: Byte -> Char
 fromByte = (tableCharB64 !) . fromIntegral
 
--- | Parse a base64 string into a `ByteString`.
+-- | Parses a base64 string into a `ByteString`.
 --
--- Produce an error if the string is invalid.
+-- Produces an error if the string is invalid.
 toBytes :: B64String -> ByteString
 toBytes (c0:c1:c2:c3:rest) = toBytes' c0 c1 c2 c3 ++ toBytes rest
   where toBytes' c0 c1 c2 c3
@@ -79,9 +82,9 @@ toBytes (c0:c1:c2:c3:rest) = toBytes' c0 c1 c2 c3 ++ toBytes rest
 toBytes []                 = []
 toBytes _                  = error "base64: invalid string length"
 
--- | Parse a base64 character into a 6-bit word.
+-- | Parses a base64 character into a 6-bit word.
 --
--- Produce an error if character is not base64.
+-- Produces an error if character is not base64.
 toByte :: Char -> Byte
 toByte c = fromIntegral d
   where d | 'A' <= c && c <= 'Z' = ord c - 65

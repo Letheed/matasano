@@ -1,9 +1,11 @@
-{- | XOR and XOR-decryption operations.
-
-NOTE: This module was written with ASCII characters and strings in mind.
-      The ASCII assumption allows for quick resolutions when decrypting.
-      UTF8 is possible but more costly, so I'm not bothering with it here.
--}
+--------------------------------------------------------------------------------
+-- | XOR and XOR-decryption operations.
+--
+-- NOTE: This module was written with ASCII characters and strings in mind.
+--       The ASCII assumption allows for quick resolutions when decrypting.
+--       UTF8 is possible but more costly, so I'm not bothering with it here.
+--
+--------------------------------------------------------------------------------
 
 module Xor
   ( -- * XOR operations
@@ -28,7 +30,7 @@ type Stats = Array Byte Int
 
 -- | XOR two `ByteString`s of equal lengths.
 --
--- Produce an error if the lengths differ.
+-- Produces an error if the lengths differ.
 xorEqLen :: ByteString -> ByteString -> ByteString
 xorEqLen (a:as) (b:bs) = a .^. b : xorEqLen as bs
 xorEqLen []     []     = []
@@ -39,11 +41,15 @@ xorEqLen _      _      = error "xorEqLen: ByteStrings have different lengths"
 xorCycle :: ByteString -> ByteString -> ByteString
 xorCycle cipher = zipWith (.^.) cipher . cycle
 
--- | Try to decrypt a repeating-key XOR cipher, given a set of candidate keys
+-- | Tries to decrypt a repeating-key XOR cipher, given a set of candidate keys
 -- and an ordered `String` of the most frequent ASCII characters expected.
--- Return the key with the highest grade, the grade and the resulting plaintext,
--- or `Nothing` if no key met the minimum criteria.
-xorDecryptWithKeys :: [ByteString] -> String -> ByteString -> Maybe (ByteString, Int, ByteString)
+--
+-- Returns the key with the highest grade, as well as the grade (higher is better)
+-- and the resulting plaintext, or `Nothing` if no key met the minimum criteria.
+xorDecryptWithKeys :: [ByteString]  -- ^ Set of candidate keys.
+                   -> String        -- ^ Ordered `String` of the most frequent ASCII characters expected.
+                   -> ByteString    -- ^ Ciphertext.
+                   -> Maybe (ByteString, Int, ByteString) -- ^ Key, grade and plaintext.
 xorDecryptWithKeys keys topChars cipher = listToMaybe . sortBy (flip $ comparing snd3) $ solutions
   where topLen    = length topChars
         topBytes  = fromString topChars
@@ -61,8 +67,9 @@ xorDecryptWithKeys keys topChars cipher = listToMaybe . sortBy (flip $ comparing
                           Just j  -> topLen - abs (i - j)
                           Nothing -> -topLen
 
--- | Create a table of the number of occurences of the acceptable ASCII characters.
--- Return `Nothing` upon encountering a non-ASCII or unusual character.
+-- | Creates a table of the number of occurences of the acceptable ASCII characters.
+--
+-- Returns `Nothing` upon encountering a non-ASCII or unusual character.
 asciiStats :: ByteString -> Maybe Stats
 asciiStats = go $ array (0,byteMax) [(i, 0) | i <- [0..byteMax]]
   where go stats []        = Just stats
@@ -85,9 +92,11 @@ isBadAscii = listArray (0, 255) [isBadAscii' b | b <- [0..255]]
   where isBadAscii' b = b > asciiMax
           || (b < ord ' ' && (b /= ord '\t' && b /= ord '\n' && b /= ord '\r' && b /= ord '\ESC'))
 
--- | Try to decrypt a repeating-key XOR cipher, given an ordered `String` of
--- the most frequent ASCII characters expected. Return the key if all the blocks
--- were decrypted successfully. Return `Nothing` otherwise.
+-- | Tries to decrypt a repeating-key XOR cipher, given an ordered `String` of
+-- the most frequent ASCII characters expected.
+--
+-- Returns the key if all the blocks were decrypted successfully.
+-- Returns `Nothing` otherwise.
 xorDecrypt :: String -> ByteString -> Maybe ByteString
 xorDecrypt topChars cipher = mapAllJust (head . fst3) solutions
   where keySize   = keysize cipher
@@ -95,9 +104,9 @@ xorDecrypt topChars cipher = mapAllJust (head . fst3) solutions
         blocks    = transpose . chunksOf keySize $ cipher
         solutions = map (xorDecryptWithKeys keys topChars) blocks
 
--- | Find the most likely keysize for a repeating-key XOR cipher.
--- Select the keysize with the smallest normalized mean hamming distance over
--- the cipher.
+-- | Finds the most likely keysize for a repeating-key XOR cipher.
+-- Selects the keysize with the smallest normalized mean hamming distance
+-- over the cipher.
 keysize :: ByteString -> Int
 keysize cipher = head . sortOn weightedMeanHammingDistance $ [2..maxKeySize]
   where cipherLen  = length cipher

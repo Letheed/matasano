@@ -1,4 +1,7 @@
-{- | Random functions. -}
+--------------------------------------------------------------------------------
+-- | Functions introducing random behaviors.
+--
+--------------------------------------------------------------------------------
 
 module Random
   ( randomCipher
@@ -12,13 +15,16 @@ import Padding
 import Data.Maybe
 import System.Random
 
--- | Take a `ByteString` and cipher it with a random key, using randomly ECB or CBC.
--- CBC uses a random IV. A random amount (in [5-10]) of random bytes is prepended
--- to the plaintext. A random amount (in [5-10]) of random bytes is appended to the
--- plaintext. The plaintext is padded.
+-- | Takes a `ByteString` and ciphers it with a random `Key`, using randomly
+-- `ECB` or `CBC`.
 --
--- Return the ciphertext and the operation mode used so that the results of the
--- mode detection functions can be verified.
+-- `CBC` uses a random `IV`. A random amount (in [5-10]) of random bytes is
+-- prepended to the plaintext. Similarly, a random amount (in [5-10])
+-- of random bytes is appended to the plaintext. The plaintext is padded with
+-- `PKCS7`.
+--
+-- Returns the ciphertext and the `OperationMode` used so that the correctness
+-- of the mode detection functions can be verified.
 randomCipher :: (RandomGen g) => g -> ByteString -> (ByteString, OperationMode)
 randomCipher gen plaintext = (rdModeCipher . pad (PKCS7 (blockSize cipher)) $ plaintext', mode)
   where (ecbMode, gen1)  = random gen

@@ -1,4 +1,7 @@
-{- | Hamming distance computations and operators. -}
+--------------------------------------------------------------------------------
+-- | Hamming distance computations and operators.
+--
+--------------------------------------------------------------------------------
 
 module Hamming
   ( -- * Hamming operators
@@ -11,13 +14,14 @@ import Bytes
 import Data.Bits
 import Data.List
 
--- | Compute the hamming distance of two `ByteString`s.
+-- | Computes the hamming distance of two `ByteString`s.
 --
--- `ByteString`s must have the same length. Produce an error otherwise.
+-- The `ByteString`s must have the same length.
+-- Produces an error otherwise.
 (^+) :: ByteString -> ByteString -> Int
 (^+) bs0 bs1 = foldl' (\hamDist (b0, b1) -> hamDist + b0 .^+. b1) 0 $ zipEqLen bs0 bs1
 
--- | Compute the hamming distance of two `Byte`s.
+-- | Computes the hamming distance of two `Byte`s.
 (.^+.) :: Byte -> Byte -> Int
 (.^+.) b0 b1 = hammingByte' (b0 .^. b1) 0
   where hammingByte' b dist
