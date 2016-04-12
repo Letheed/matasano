@@ -3,12 +3,12 @@
 {- | Base64 encoding and decoding operations. -}
 
 module Base64
-       ( -- * Base64 related types
-         B64String
-         -- * Base64 conversion functions
-         -- *** Bytes
-       , fromBytes, toBytes
-       ) where
+  ( -- * Base64 related types
+    B64String
+    -- * Base64 conversion functions
+    -- *** Bytes
+  , fromBytes, toBytes
+  ) where
 
 import Bytes
 

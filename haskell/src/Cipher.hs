@@ -1,19 +1,19 @@
 {- | Cipher commons. -}
 
 module Cipher
-       ( -- * Key related types and functions
-         Key, KeySchedule
-         -- * Cipher classes
-       , Cipher(..), BlockCipher(..), ProductCipher(..)
-         -- * Initialisation vector
-       , IV, ivInit, ivNull
-         -- * Modes of operation
-       , OperationMode(..)
-       , ecbCipher, ecbDecipher
-       , cbcCipher, cbcDecipher
-         -- *** Mode detection
-       , ecbProbe
-       ) where
+  ( -- * Key related types and functions
+    Key, KeySchedule
+    -- * Cipher classes
+  , Cipher(..), BlockCipher(..), ProductCipher(..)
+    -- * Initialisation vector
+  , IV, ivInit, ivNull
+    -- * Modes of operation
+  , OperationMode(..)
+  , ecbCipher, ecbDecipher
+  , cbcCipher, cbcDecipher
+    -- * Decryption
+  , ecbProbe, ecbBlockSize
+  ) where
 
 import Bytes
 import Data.Bits

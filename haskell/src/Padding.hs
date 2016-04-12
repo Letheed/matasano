@@ -3,11 +3,11 @@
 {- | Padding methods and functions. -}
 
 module Padding
-       ( -- * Padding methods
-         Padding(..)
-         -- * Padding functions
-       , pad, depad
-       ) where
+  ( -- * Padding methods
+    Padding(..)
+    -- * Padding functions
+  , pad, depad
+  ) where
 
 import Bytes
 import Data.List.Split

@@ -1,7 +1,7 @@
 module AppCommon
-       ( readFile'
-       , maybeTest, testPrint
-       ) where
+  ( readFile'
+  , maybeTest, testPrint
+  ) where
 
 import Text.Printf
 

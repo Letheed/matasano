@@ -6,14 +6,14 @@ NOTE: This module was written with ASCII characters and strings in mind.
 -}
 
 module Bytes
-       ( -- * Byte related types
-         Byte, ByteString
-         -- * Byte conversion functions
-         -- *** String
-       , fromString, toString
-         -- *** Hexadecimal
-       , parseHex, toHex
-       ) where
+  ( -- * Byte related types
+    Byte, ByteString
+    -- * Byte conversion functions
+    -- *** String
+  , fromString, toString
+    -- *** Hexadecimal
+  , parseHex, toHex
+  ) where
 
 import LibCommon
 

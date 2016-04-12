@@ -1,10 +1,10 @@
 {- | Generic utility functions common to the library. -}
 
 module LibCommon
-       ( (.^.)
-       , fst3, snd3, thd3, fstThd3
-       , lastMaybe, mapAllJust, pairOff, slidingPairs, zipEqLen
-       ) where
+  ( (.^.)
+  , fst3, snd3, thd3, fstThd3
+  , lastMaybe, mapAllJust, pairOff, slidingPairs, zipEqLen
+  ) where
 
 import Data.Bits
 

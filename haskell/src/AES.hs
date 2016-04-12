@@ -5,11 +5,11 @@ Do not use it for actual cryptographical purposes.
 -}
 
 module AES
-       ( -- * AES class
-         AES
-         -- * AES implementations
-       , AES128, AES192, AES256
-       ) where
+  ( -- * AES class
+    AES
+    -- * AES implementations
+  , AES128, AES192, AES256
+  ) where
 
 import Bytes
 import Cipher

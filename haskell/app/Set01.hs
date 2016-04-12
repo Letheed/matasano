@@ -1,8 +1,8 @@
 module Set01
-       ( execAll
-       , challenge1, challenge2, challenge3, challenge4
-       , challenge5, challenge6, challenge7, challenge8
-       ) where
+  ( execAll
+  , challenge1, challenge2, challenge3, challenge4
+  , challenge5, challenge6, challenge7, challenge8
+  ) where
 
 import AppCommon
 import LibCommon

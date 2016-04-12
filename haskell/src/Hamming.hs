@@ -1,9 +1,9 @@
 {- | Hamming distance computations and operators. -}
 
 module Hamming
-       ( -- * Hamming operators
-         (^+), (.^+.)
-       ) where
+  ( -- * Hamming operators
+    (^+), (.^+.)
+  ) where
 
 import LibCommon
 import Bytes

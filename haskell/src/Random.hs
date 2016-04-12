@@ -1,8 +1,8 @@
 {- | Random functions. -}
 
 module Random
-       ( randomCipher
-       ) where 
+  ( randomCipher
+  ) where
 
 import AES
 import Bytes

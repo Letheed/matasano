@@ -6,11 +6,11 @@ NOTE: This module was written with ASCII characters and strings in mind.
 -}
 
 module Xor
-       ( -- * XOR operations
-         xorEqLen, xorCycle
-         -- * XOR decryption
-       , xorDecrypt, xorDecryptWithKeys
-       ) where
+  ( -- * XOR operations
+    xorEqLen, xorCycle
+    -- * XOR decryption
+  , xorDecrypt, xorDecryptWithKeys
+  ) where
 
 import LibCommon
 import Bytes
