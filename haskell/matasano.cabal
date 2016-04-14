@@ -1,16 +1,17 @@
 name:                matasano
 version:             0.1.0.0
-synopsis:            The Matasano crypto challenges
-description:         Library dedicated to the resolution of the Matasano cryptography challenges, written for my personnal education. Do not use it for actual cryptographical purposes.
-homepage:            http://github.com/Letheed/matasano
+synopsis:            Matasano crypto challenges
+description:         This library is dedicated to the resolution of the Matasano cryptography challenges.
+                     It is written for my personnal education. Do not use it for actual cryptographical purposes.
+homepage:            https://github.com/Letheed/matasano
+bug-reports:         https://github.com/Letheed/matasano/issues
 license:             MPL-2.0
 license-file:        LICENSE
 author:              Letheed
 maintainer:          dev@daweb.se
 copyright:           2016 Letheed
-category:            Crypto
+category:            Cryptography
 build-type:          Simple
--- extra-source-files:
 cabal-version:       >=1.10
 
 library
@@ -39,12 +40,9 @@ executable matasano-exe
                        Set02
   ghc-options:         -threaded -rtsopts -with-rtsopts=-N
   build-depends:       base
-                     , bytestring >= 0.10
-                     , cryptonite >= 0.10
                      , matasano
                      , random >= 1.1
   default-language:    Haskell2010
-
 test-suite matasano-test
   type:                exitcode-stdio-1.0
   hs-source-dirs:      test
