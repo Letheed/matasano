@@ -20,6 +20,7 @@ import Xor
 import Data.List
 import Data.Maybe
 import Data.Ord
+import Data.Result
 
 execAll :: IO ()
 execAll = do
@@ -86,7 +87,7 @@ challenge7 = do
   cipher    <- Base64.toBytes . concat . lines <$> readFile' 1 7 "cipher_base64"
   plaintext <- readFile' 1 7 "plaintext"
   let aes128   = fromJust $ cipherInit key :: AES128
-  let solution = Bytes.toString . depad (PKCS7 (blockSize aes128)) . ecbDecipher aes128 $ cipher
+  let solution = Bytes.toString . fromOk . ecbDecipher aes128 PKCS7 $ cipher
   testPrint 1 7 $ solution == plaintext
 
 challenge8 :: IO ()

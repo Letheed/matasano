@@ -30,7 +30,7 @@ import System.Random
 -- Returns the ciphertext and the `OperationMode` used so that the correctness
 -- of the mode detection functions can be verified.
 randomCipher :: (RandomGen g) => g -> ByteString -> (ByteString, OperationMode)
-randomCipher gen plaintext = (rdModeCipher . pad (PKCS7 (blockSize cipher)) $ plaintext', mode)
+randomCipher gen plaintext = (rdModeCipher plaintext', mode)
   where (ecbMode, gen1)  = random gen
         (nBefore, gen2)  = randomR (5, 10) gen1
         (nAfter,  gen3)  = randomR (5, 10) gen2
@@ -42,6 +42,6 @@ randomCipher gen plaintext = (rdModeCipher . pad (PKCS7 (blockSize cipher)) $ pl
         plaintext'       = rdPref ++ plaintext ++ rdSuf
         cipher           = fromJust $ cipherInit rdKey :: AES128
         (mode, rdModeCipher)
-          | ecbMode   = (ECB, ecbCipher cipher)
-          | otherwise = (CBC, cbcCipher cipher rdIV)
+          | ecbMode   = (ECB, ecbCipher cipher PKCS7)
+          | otherwise = (CBC, cbcCipher cipher rdIV PKCS7)
           where rdIV = fromJust $ ivInit rdBs

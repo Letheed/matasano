@@ -28,6 +28,7 @@ library
   build-depends:       base >= 4.7 && < 5
                      , array >= 0.5
                      , random >= 1.1
+                     , result >= 0.1
                      , split >= 0.2
                      , vector >= 0.11
   default-language:    Haskell2010
@@ -42,6 +43,7 @@ executable matasano-exe
   build-depends:       base
                      , matasano
                      , random >= 1.1
+                     , result >= 0.1
   default-language:    Haskell2010
 test-suite matasano-test
   type:                exitcode-stdio-1.0

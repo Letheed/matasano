@@ -3,7 +3,7 @@
 -- file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
 --------------------------------------------------------------------------------
--- | Advanced Encryption Standard ciphers.
+-- | The Advanced Encryption Standard ciphers.
 --
 -- This AES implementation is only meant to be an implementation excercise.
 -- Do not use it for actual cryptographical purposes.
@@ -25,20 +25,19 @@ import Data.List.Split
 import Data.Word
 import qualified Data.Array.Unboxed as UA
 
--- | AES cipher class.
+-- | The AES cipher class.
 class (BlockCipher cipher, ProductCipher cipher) => AES cipher
 
--- | AES symmetric block cipher with 128 bit key.
+-- | The AES symmetric block cipher with a 128 bit key.
 newtype AES128 = AES128 KeySchedule
 
 instance AES AES128
 
 instance Cipher AES128 where
   cipherInit key
-    | keySize == 16 = Just $ AES128 keySchedule
+    | keySize == 16 = AES128 <$> scheduleKeys (11*16) key
     | otherwise     = Nothing
-    where keySize     = length key
-          keySchedule = scheduleKeys (11*16) key
+    where keySize = length key
   cipherKeySize     = const 16
   cipherName        = const "AES-128"
 
@@ -52,17 +51,16 @@ instance ProductCipher AES128 where
   cipherKeySchedule (AES128 keySchedule) = keySchedule
 
 
--- | AES symmetric block cipher with 192 bit key.
+-- | The AES symmetric block cipher with a 192 bit key.
 newtype AES192 = AES192 KeySchedule
 
 instance AES AES192
 
 instance Cipher AES192 where
   cipherInit key
-    | keySize == 24 = Just $ AES192 keySchedule
+    | keySize == 24 = AES192 <$> scheduleKeys (13*16) key
     | otherwise     = Nothing
-    where keySize     = length key
-          keySchedule = scheduleKeys (13*16) key
+    where keySize = length key
   cipherKeySize     = const 24
   cipherName        = const "AES-192"
 
@@ -76,17 +74,16 @@ instance ProductCipher AES192 where
   cipherKeySchedule (AES192 keySchedule) = keySchedule
 
 
--- | AES symmetric block cipher with 256 bit key.
+-- | The AES symmetric block cipher with a 256 bit key.
 newtype AES256 = AES256 KeySchedule
 
 instance AES AES256
 
 instance Cipher AES256 where
   cipherInit key
-    | keySize == 32 = Just $ AES256 keySchedule
+    | keySize == 32 = AES256 <$> scheduleKeys (15*16) key
     | otherwise     = Nothing
-    where keySize     = length key
-          keySchedule = scheduleKeys (15*16) key
+    where keySize = length key
   cipherKeySize     = const 32
   cipherName        = const "AES-256"
 
@@ -157,15 +154,17 @@ sBoxList = [
 
 -- | Generates the requested bytelength of subkeys needed for `AES` block ciphering.
 --
--- Produces an error if the `Key` is not one of the standard keylengths (128, 192 or 256 bits).
-scheduleKeys :: Int -> Key -> KeySchedule
-scheduleKeys b key = take b expandedKey
+-- Produces an `Err` if the `Key` is not one of the standard keylengths (128, 192 or 256 bits).
+scheduleKeys :: Int -> Key -> Maybe KeySchedule
+scheduleKeys b key
+  | n `elem` [16, 24, 32] = Just (take b expandedKey)
+  | otherwise             = Nothing
   where n = length key
         expandedKey = key ++ expand 1 key (drop (n-4) key)
         expand i prev t
           | n `elem` [16, 24] = ts ++ expand (i+1) ts (drop (n-4) ts)
           | n == 32           = ts' ++ expand (i+1) ts' (drop 12 ts1)
-          | otherwise         = error $ "scheduleKeys (AES): illegal key size (" ++ show (n*8) ++ " bits)"
+          | otherwise         = error "unreachable"
           where ts  = zipWith xor prev (scheduleCore i t ++ ts)
                 ts' = ts0 ++ ts1
                 ts0 = zipWith xor ps0  (scheduleCore i t ++ ts0)
@@ -229,25 +228,25 @@ invMixColumns = concatMap invMixColumn . chunksOf 4
 
 -- | Ciphers a plaintext block using an `AES` cipher.
 --
--- Produces an error if the plaintext's size doesn't match the cipher's blocksize.
-aesCipher :: (AES cipher) => cipher -> ByteString -> ByteString
-aesCipher = aesCore "aesCipher" foldl' fRound fRound'
+-- Returns `Nothing` if the plaintext's size doesn't match the cipher's blocksize.
+aesCipher :: (AES cipher) => cipher -> ByteString -> Maybe ByteString
+aesCipher = aesCore foldl' fRound fRound'
   where fRound  subkey = addRoundKey subkey . mixColumns . shiftRows . subBytes
         fRound' subkey = addRoundKey subkey . shiftRows . subBytes
 
 -- | Deciphers a ciphertext block using an AES cipher.
 --
--- Produces an error if the ciphertext's size doesn't match the cipher's blocksize.
-aesDecipher :: (AES cipher) => cipher -> ByteString -> ByteString
-aesDecipher = aesCore "aesDecipher" foldr' fRound fRound'
+-- Returns `Nothing` if the ciphertext's size doesn't match the cipher's blocksize.
+aesDecipher :: (AES cipher) => cipher -> ByteString -> Maybe ByteString
+aesDecipher = aesCore foldr' fRound fRound'
   where  fRound  subkey = invSubBytes . invShiftRows . invMixColumns . addRoundKey subkey
          fRound' subkey = invSubBytes . invShiftRows . addRoundKey subkey
          foldr' f = foldr (flip f)
 
 -- | Core routine for the `AES` ciphering/deciphering process.
-aesCore name fold fRound fRound' cipher block
-  | length block == 16 = fold doRound block (zip roundFunctions subkeys)
-  | otherwise          = error $ name ++ ": block size is not 128 bits"
+aesCore fold fRound fRound' cipher block
+  | length block == 16 = Just $ fold doRound block (zip roundFunctions subkeys)
+  | otherwise          = Nothing
   where nRounds                   = cipherRounds cipher
         keySchedule               = cipherKeySchedule cipher
         subkeys                   = chunksOf 16 keySchedule

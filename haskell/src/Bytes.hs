@@ -12,7 +12,7 @@
 --------------------------------------------------------------------------------
 
 module Bytes
-  ( -- * Byte related types
+  ( -- * Byte types
     Byte, ByteString
     -- * Byte conversion functions
     -- *** String
@@ -49,6 +49,9 @@ toString :: ByteString -> String
 toString = map (chr . fromIntegral)
 
 -- | Parses a `String` of hexadecimal digits representing bytes.
+--
+-- Produces an error if the `String` length is odd
+-- or if it contains non hexadecimal characters.
 parseHex :: String -> ByteString
 parseHex = map parseHexPair . pairOff
 

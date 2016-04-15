@@ -17,6 +17,7 @@ import Padding
 import Random
 
 import Data.Maybe
+import Data.Result
 import System.Random
 
 execAll :: IO ()
@@ -34,7 +35,7 @@ challenge9 :: IO ()
 challenge9 = do
   plaintext  <- Bytes.fromString <$> readFile' 2 9 "plaintext"
   paddedtext <- Bytes.fromString <$> readFile' 2 9 "plaintext_padded"
-  let solution = pad (PKCS7 20) plaintext
+  let solution = pad (fromJust . mkPadding PKCS7 $ 20) plaintext
   testPrint 2 9 $ solution == paddedtext
 
 challenge10 :: IO ()
@@ -44,7 +45,7 @@ challenge10 = do
   plaintext <- readFile' 2 10 "plaintext"
   let aes128   = fromJust $ cipherInit key :: AES128
   let iv       = ivNull :: IV AES128
-  let solution = Bytes.toString . depad (PKCS7 (blockSize aes128)) . cbcDecipher aes128 iv $ cipher
+  let solution = Bytes.toString . fromOk . cbcDecipher aes128 iv PKCS7 $ cipher
   testPrint 2 10 $ solution == plaintext
 
 challenge11 :: IO ()
@@ -62,7 +63,7 @@ challenge12 = do
   suffix <- Base64.toBytes . concat . lines <$> readFile' 2 12 "suffix_base64"
   let rdKey     = take 16 . randoms $ gen :: ByteString
   let aes128    = fromJust $ cipherInit rdKey :: AES128
-  let cipher    = ecbCipher aes128 . pad (PKCS7 (blockSize aes128)) . (++ suffix)
+  let cipher    = ecbCipher aes128 PKCS7 . (++ suffix)
   let blockSize = ecbBlockSize cipher
   testPrint 2 12 False
 

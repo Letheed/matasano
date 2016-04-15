@@ -5,49 +5,66 @@
 {-# LANGUAGE MultiWayIf #-}
 
 --------------------------------------------------------------------------------
--- | Padding methods and functions.
+-- | Padding methods and operations.
 --
 --------------------------------------------------------------------------------
 
 module Padding
   ( -- * Padding methods
-    Padding(..)
+    PaddingType(..)
+  , Padding, mkPadding
     -- * Padding functions
   , pad, depad
   ) where
 
 import Bytes
 import Data.List.Split
+import Data.Result
 
 -- | Padding method.
-data Padding = PKCS7 Int -- ^ PKCS#7 padding method (RFC 5652) with blocksize parameter.
+data PaddingType = PKCS7 -- ^ PKCS#7 padding method (RFC 5652).
+                         -- Supports blocksizes in [0..255]
+
+-- | Opaque padding method with blocksize parameter.
+data Padding = Padding PaddingType Int
+
+-- | Creates a `Padding` from a `PaddingType` and a blocksize.
+--
+-- Returns `Nothing` if the requested blocksize is invalid with the padding method.
+mkPadding :: PaddingType -> Int -> Maybe Padding
+mkPadding padding n = case padding of
+  PKCS7 -> if | n < 0 || 255 < n -> Nothing
+              | otherwise        -> Just (Padding PKCS7 n)
 
 -- | Pads a `ByteString` using a `Padding` method.
 pad :: Padding -> ByteString -> ByteString
-pad padding bs = case padding of
-  PKCS7 n -> bs ++ padString
+pad (Padding padding n) bs = case padding of
+  PKCS7 -> bs ++ padString
     where lastChunk = last $ chunksOf n bs
           padSize = let size = n - length lastChunk in (if size == 0 then n else size)
           padString = replicate padSize (fromIntegral padSize)
 
 -- | Depads a `ByteString` using a `Padding` method.
-depad :: Padding -> ByteString -> ByteString
-depad padding bs = case padding of
-  PKCS7 n -> if | any (/= p) ps -> error "depad: invalid or corrupted padding (PKCS7)"
-                | otherwise     -> bs'
-                where (bs', p:ps) = depadLastIsCount n bs
+--
+-- Returns an `Err` if the padding is invalid or the file is corrupted.
+depad :: Padding -> ByteString -> Result String ByteString
+depad (Padding padding n) bs = case padding of
+  PKCS7 -> depadLastIsCount n bs `andThen` checkPaddingWasValid
+    where checkPaddingWasValid (bs', p:ps)
+            | any (/= p) ps = Err "depad: invalid or corrupted padding (PKCS7)"
+            | otherwise     = Ok bs'
 
 -- | Depads a `ByteString` where the last `Byte`'s value represents
 -- the length of the padding, given a blocksize.
 --
 -- Returns the depadded `ByteString` and the dropped padding for checks
 -- specific to the `Padding` method.
-depadLastIsCount :: Int -> ByteString -> (ByteString, ByteString)
+depadLastIsCount :: Int -> ByteString -> Result String (ByteString, ByteString)
 depadLastIsCount n bs
-  | length lastChunk /= n = error "depad: bytestring length not a multiple of blocksize"
-  | padSize > n           = error "depad: padding length counter > blocksize"
-  | null padString        = error "depad: padding length counter is null"
-  | otherwise             = (concat (init chunks) ++ lastChunk', padString)
+  | length lastChunk /= n = Err "depad: bytestring length not a multiple of blocksize"
+  | padSize > n           = Err "depad: padding length counter > blocksize"
+  | null padString        = Err "depad: padding length counter is null"
+  | otherwise             = Ok (concat (init chunks) ++ lastChunk', padString)
   where chunks    = chunksOf n bs
         lastChunk = last chunks
         padSize   = fromIntegral $ last lastChunk
