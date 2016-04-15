@@ -28,7 +28,7 @@ execAll = do
   challenge12
   -- challenge13
   -- challenge14
-  -- challenge15
+  challenge15
   -- challenge16
 
 challenge9 :: IO ()
@@ -79,8 +79,11 @@ challenge14 = do
 
 challenge15 :: IO ()
 challenge15 = do
-  putStr ""
-  testPrint 2 15 False
+  let depadString = depad (fromJust . mkPadding PKCS7 $ 16) . Bytes.fromString
+  let result1 = depadString "ICE ICE BABY\x04\x04\x04\x04"
+  let result2 = depadString "ICE ICE BABY\x05\x05\x05\x05"
+  let result3 = depadString "ICE ICE BABY\x01\x02\x03\x04"
+  testPrint 2 15 $ Prelude.and $ isOk result1 : fmap isErr [result2, result3]
 
 challenge16 :: IO ()
 challenge16 = do
